@@ -1,0 +1,29 @@
+{
+  "name": "inf4375-tp",
+  "version": "1.0.0",
+  "description": "Travail de session pour le cours INF4375",
+  "private": true,
+  "scripts": {
+    "start": "node-dev ./bin/www"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/alexis-valois/inf4375-tp.git"
+  },
+  "author": "Alexis Valois-Adamowicz",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/alexis-valois/inf4375-tp/issues"
+  },
+  "homepage": "https://github.com/alexis-valois/inf4375-tp#readme",
+  "dependencies": {
+    "body-parser": "~1.15.2",
+    "cookie-parser": "~1.4.3",
+    "debug": "~2.2.0",
+    "express": "~4.14.0",
+    "jade": "~1.11.0",
+    "mongodb": "^2.2.11",
+    "morgan": "~1.7.0",
+    "serve-favicon": "~2.3.0"
+  }
+}
