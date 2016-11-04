@@ -1,6 +1,5 @@
 var express = require('express');
 var mongo = require('mongodb');
-var xml = require('xmldom');
 var request = require('request');
 var router = express.Router();
 
@@ -12,15 +11,12 @@ function getContrevenantsXml(callback) {
     }
   };
 
-  var domRoot = new xml.DOMParser();
-
   request.get(options, function (err, response) {
     if (err) {
       callback(err);
     } else {
       var rawXml = response.body;
-      var data = domRoot.parseFromString(rawXml);
-      callback(null, data);
+      callback(null, rawXml);
     }
   });
 }
@@ -30,9 +26,8 @@ router.get('/', function(req, res, next) {
     if (err) {
       res.sendStatus(500);
     } else {
-    	res.json(data);
-    	//res.header('Content-Type', 'application/xml');
-    	//res.render('a1', {contrev: data});
+    	res.header('Content-Type', 'application/xml');
+    	res.render('a1', {contrev: data});
       // xml.parseString(data, function (err, result){
       // 	if (err){
       // 		res.sendStatus(500);
