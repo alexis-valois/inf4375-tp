@@ -4,6 +4,8 @@ var xmlService = require("../services/xml-service.js");
 var mongoService = require("../services/mongo-service.js");
 var config = require('../config.js');
 
+var mongo = new mongoService(config.mongo.host, config.mongo.port);
+
 router.get('/', function(req, res, next) {
   xmlService.fetchXmlString('latin1', config.contrevenants.host, config.contrevenants.ressource, function(err, xmlString) {
     if (err) {

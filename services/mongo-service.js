@@ -1,3 +1,10 @@
 var mongo = require('mongodb');
+var server;
 
-var server = new mongo.Server("localhost", 27017);
+function MongoService(host, port){
+	this.server = new mongo.Server(host, port);
+}
+
+MongoService.prototype = {};
+
+module.exports = MongoService;

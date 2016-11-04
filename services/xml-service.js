@@ -21,7 +21,7 @@ function getJsObjFromXml(xmlString, elementName, callback){
     if (err){
       callback(err);
     } else{
-      callback(null, xmlObject.get[elementName]);
+      callback(null, xmlObject[elementName]);
     }
   });
 }
@@ -30,8 +30,6 @@ function fetchXmlString(encoding, host, ressource, callback) {
   var options = {
     host: host,
     path: ressource,
-    //host: 'donnees.ville.montreal.qc.ca',
-    //path: '/dataset/a5c1f0b9-261f-4247-99d8-f28da5000688/resource/92719d9b-8bf2-4dfd-b8e0-1021ffcaee2f/download/inspection-aliments-contrevenants.xml',
     method: 'GET'
   };
 
