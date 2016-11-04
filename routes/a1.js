@@ -1,6 +1,7 @@
 var express = require('express');
 var mongo = require('mongodb');
 var request = require('request');
+var xml = require('xml2js');
 var router = express.Router();
 
 function getContrevenantsXml(callback) {
@@ -11,33 +12,42 @@ function getContrevenantsXml(callback) {
     }
   };
 
-  request.get(options, function (err, response) {
+  request.get(options, function (err, xmlObject) {
     if (err) {
       callback(err);
     } else {
-      var rawXml = response.body;
-      callback(null, rawXml);
+      callback(null, xmlObject.body);
+    }
+  });
+}
+
+function getContrevenantsFromXml(xmlString ,callback){
+  xml.parseString(xmlString, function (err, xmlObject) {
+    if (err){
+      callback(err);
+    } else{
+      callback(null, xmlObject.contrevenants);
     }
   });
 }
 
 router.get('/', function(req, res, next) {
-  getContrevenantsXml(function(err, data) {
+  getContrevenantsXml(function(err, xmlString) {
     if (err) {
-      res.sendStatus(500);
+      res.header('Content-Type', 'application/json')
+         .status(500)
+         .json(err);
     } else {
-    	res.header('Content-Type', 'application/xml');
-    	res.render('a1', {contrev: data});
-      // xml.parseString(data, function (err, result){
-      // 	if (err){
-      // 		res.sendStatus(500);
-      // 	}else{
-      // 		//res.header('Content-Type', 'application/xml');
-      // 		//res.render('a1', {contrev: result.contrevenants});
-      // 		//res.header('Content-Type', 'application/json');
-      // 		res.json(result.contrevenants);
-      // 	}
-      // })      
+    	getContrevenantsFromXml(xmlString, function(err, contrevenants){
+        if (err){
+          res.header('Content-Type', 'application/json')
+             .status(500)
+             .json(err);
+        } else{
+          res.header('Content-Type', 'application/xml')
+             .render('a1', {contrevenants: contrevenants.contrevenant}); 
+        }
+      });    	   
     }
   });
 });

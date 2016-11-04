@@ -1,12 +1,13 @@
 doctype xml
 contrevenants
-  each contrevenant in contrev.contrevenants
+  if contrevenants.length
+  each c in contrevenants
     contrevenant
-      proprietaire #{contrevenant.proprietaire}
-      etablissement #{contrevenant.etablissement}
-      adresse #{contrevenant.adresse}
-      ville #{contrevenant.ville}
-      description #{contrevenant.description}
-      date_infraction #{contrevenant.date_infraction}
-      date_jugement #{contrevenant.date_jugement}
-      montant #{contrevenant.montant}
+      proprietaire #{c.proprietaire}
+      etablissement #{c.etablissement}
+      adresse #{c.adresse}
+      ville #{c.ville}
+      description #{c.description}
+      date_infraction #{c.date_infraction}
+      date_jugement #{c.date_jugement}
+      montant #{c.montant}
