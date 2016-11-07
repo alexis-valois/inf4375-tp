@@ -16,11 +16,11 @@
 var http = require("http");
 var xml = require('xml2js');
 
-module.exports = XmlUtil;
+module.exports = XmlWrapper;
 
-function XmlUtil(){}
+function XmlWrapper(){}
 
-XmlUtil.prototype.getJsObjFromXml = function (xmlString, elementName, callback){
+XmlWrapper.prototype.getJsObjFromXml = function (xmlString, elementName, callback){
   xml.parseString(xmlString, function (err, xmlObject) {
     if (err){
       callback(err);
@@ -30,7 +30,7 @@ XmlUtil.prototype.getJsObjFromXml = function (xmlString, elementName, callback){
   });
 }
 
-XmlUtil.prototype.fetchXmlString = function (encoding, host, ressource, callback) {
+XmlWrapper.prototype.fetchXmlString = function (encoding, host, ressource, callback) {
   var options = {
     host: host,
     path: ressource,

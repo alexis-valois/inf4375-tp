@@ -10,7 +10,7 @@ router.get('/', function(req, res, next) {
       res.status(500).json(err);
     }else{
       res.header('Content-Type', 'application/xml');
-      res.render('contrevenants-xml', {contrevenants: result.ops});
+      res.render('contrevenants-xml', {contrevenants: result});
     }
   });
 });
