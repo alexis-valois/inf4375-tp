@@ -8,6 +8,8 @@ var bodyParser = require('body-parser');
 var index = require('./routes/index');
 var contrevenants = require('./routes/contrevenants');
 
+var updateContrevenantTask = require('./scheduled-tasks/update-contrevenants');
+
 var app = express();
 
 // view engine setup
