@@ -1,3 +1,4 @@
+var logger = require('../logger');
 var mongo = require("mongodb");
 
 var server;
@@ -39,10 +40,12 @@ function MongoService(host, port, dbname){
 MongoService.prototype.findAll = function(collName, callback){
 	this.db.open(function(err,db){
 		if(err){
+			logger.error(err);
 			callback(err);
 		}else{
 			db.collection(collName, function (err, collection) {
 				if (err){
+					logger.error(err);
 					db.close();
 					callback(err);
 				}else{
@@ -50,6 +53,7 @@ MongoService.prototype.findAll = function(collName, callback){
 					var cursor = collection.find({});
 					cursor.toArray(function (err, elems) {
 						if (err){
+							logger.error(err);
 							db.close();
 							callback(err);
 						}else{
@@ -71,10 +75,12 @@ MongoService.prototype.findAll = function(collName, callback){
 MongoService.prototype.upsert = function(collName, value, callback){
 	this.db.open(function(err, db) {
 		if (err){
+			logger.error(err);
 			callback(err);
 		}else{
 			db.collection(collName, function (err, collection) {
 				if (err){
+					logger.error(err);
 					db.close();
 					callback(err);
 				}else{

@@ -1,3 +1,4 @@
+var logger = require('../logger');
 /*
  * Copyright 2012 Jacques Berger.
  *
@@ -23,6 +24,7 @@ function XmlWrapper(){}
 XmlWrapper.prototype.getJsObjFromXml = function (xmlString, elementName, callback){
   xml.parseString(xmlString, function (err, xmlObject) {
     if (err){
+      logger.error(err);
       callback(err);
     } else{
       callback(null, xmlObject[elementName]);
@@ -54,6 +56,7 @@ XmlWrapper.prototype.fetchXmlString = function (encoding, host, ressource, callb
   });
   
   request.on("error", function (e) {
+    logger.error(e);
     callback(e);
   });
   request.end();

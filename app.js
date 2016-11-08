@@ -7,6 +7,7 @@ var bodyParser = require('body-parser');
 
 var index = require('./routes/index');
 var contrevenants = require('./routes/contrevenants');
+var doc = require('./routes/rest-documentation');
 
 var updateContrevenantTask = require('./scheduled-tasks/update-contrevenants');
 
@@ -26,7 +27,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', index);
 app.use('/contrevenants', contrevenants);
-
+app.use('/doc', doc);
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
   var err = new Error('Not Found');

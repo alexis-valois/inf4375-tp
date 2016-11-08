@@ -17,3 +17,5 @@ winston.configure({
     })
   ]
 });
+
+module.exports = winston;
