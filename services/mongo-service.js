@@ -85,6 +85,11 @@ MongoService.prototype.findByDateRange = function(collName, fieldName, from, to,
 	findByFilter.call(this,collName, filter, callback);
 }
 
+MongoService.prototype.getSortedInfractionsCount = function(collName, sortOrder, callback){
+	var filter = {};
+	findByFilter.call(this, collName, filter, callback);
+}
+
 MongoService.prototype.findAll = function(collName, callback){
 	findByFilter.call(this,collName, {}, callback);
 }
