@@ -2,4 +2,14 @@ extends layout
 
 block content
   h1= title
-  p Accueil du projet de session #{title}
+  h2 Veuillez saisir les dates pour la recherche
+  form
+    label(for='debut') Date de début
+    br
+    input(name='debut' type='text')
+    br
+    label(for='debut') Date de fin
+    br
+    input(name='fin' type='text')
+    br
+    input(type='button', value='Rechercher')
