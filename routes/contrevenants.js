@@ -3,6 +3,7 @@ var express = require('express');
 var ErrToJSON = require( 'utils-error-to-json' );
 var router = express.Router();
 var ContrevenantsService = require('../services/contrevenants-service');
+var moment = require('moment');
 
 var contrevenantsService = new ContrevenantsService();
 
@@ -19,16 +20,23 @@ var updateContrevenants = function(res) {
 }
 
 var handleDateFiltering = function(res, from, to){
-	if ( isNaN( from.getDate() ) ) {
+	if ( !from.isValid() ) {
  		var err = new Error("La date de début n'est pas correcte.");
  		logger.error(err);
  		res.status(400).json({error: ErrToJSON(err).message});
-	} else if ( isNaN( to.getDate() )) {
+	} else if ( !to.isValid() ) {
 		var err = new Error("La date de fin n'est pas correcte.");
  		logger.error(err);
  		res.status(400).json({error : ErrToJSON(err).message});
 	} else {
-		res.status(200).json(from.toISOString());
+		contrevenantsService.filterByDateRange(from, to, function(err,result){
+			if (err){
+				logger.error(err);
+				res.status(500).json({error: ErrToJSON(err).message});
+			}else{
+				res.status(200).json(result);
+			}
+		});		
 	}
 }
 
@@ -36,8 +44,8 @@ var dispatchFromParams = function(req, res){
 	if (Object.keys(req.query).length === 0){
 		updateContrevenants(res);
 	}else{
-		var from = new Date(req.query.du);
-		var to = new Date(req.query.au);
+		var from = moment(req.query.du);
+		var to = moment(req.query.au);
 		handleDateFiltering(res, from, to);
 	}
 }

@@ -1,43 +1,13 @@
 var logger = require('../logger');
 var mongo = require("mongodb");
+var moment = require('moment');
 
 var server;
 var db;
 
-var upsertSingleDocument = function(value, options, collection){
-	var filter = { 
-		proprietaire: value.proprietaire,
-		categorie: value.categorie,
-		etablissement: value.etablissement,
-		adresse: value.adresse,
-		ville: value.ville,
-		description: value.description,
-		date_infraction: value.date_infraction,
-		date_jugement: value.date_jugement,
-		montant: value.montant
-	};
-	var update = {
-		$set: {proprietaire: value.proprietaire},
-		$set: {categorie: value.categorie},
-		$set: {etablissement : value.etablissement},
-		$set: {adresse: value.adresse},
-		$set: {ville: value.ville},
-		$set: {description: value.description},
-		$set: {date_infraction: value.date_infraction},
-		$set: {date_jugement: value.date_jugement},
-		$set: {montant: value.montant}
-	};
-	collection.update(filter, update, options);
-}
+moment.locale('fr');
 
-module.exports = MongoService;
-
-function MongoService(host, port, dbname){
-	this.server = new mongo.Server(host, port);
-	this.db = new mongo.Db(dbname, this.server, {safe:true});
-}
-
-MongoService.prototype.findAll = function(collName, callback){
+var findByFilter = function(collName, filter, callback){
 	this.db.open(function(err,db){
 		if(err){
 			logger.error(err);
@@ -50,7 +20,7 @@ MongoService.prototype.findAll = function(collName, callback){
 					callback(err);
 				}else{
 					/*Provenance : https://github.com/jacquesberger/exemplesINF4375/blob/master/MongoDB/2-find-year.js*/
-					var cursor = collection.find({});
+					var cursor = collection.find(filter);
 					cursor.toArray(function (err, elems) {
 						if (err){
 							logger.error(err);
@@ -72,6 +42,53 @@ MongoService.prototype.findAll = function(collName, callback){
 	})
 }
 
+var upsertSingleDocument = function(value, collection){
+	var options = {upsert:true};
+	var filter = { 
+		proprietaire: value.proprietaire,
+		categorie: value.categorie,
+		etablissement: value.etablissement,
+		adresse: value.adresse,
+		ville: value.ville,
+		description: value.description,
+		date_infraction: moment(value.date_infraction, "DD MMMM YYYY").toDate(),
+		date_jugement: moment(value.date_jugement, "DD MMMM YYYY").toDate(),
+		montant: value.montant
+	};
+	var update = {
+		$set: {proprietaire: value.proprietaire},
+		$set: {categorie: value.categorie},
+		$set: {etablissement : value.etablissement},
+		$set: {adresse: value.adresse},
+		$set: {ville: value.ville},
+		$set: {description: value.description},
+		$set: {date_infraction: moment(value.date_infraction, "DD MMMM YYYY").toDate()},
+		$set: {date_jugement: moment(value.date_jugement, "DD MMMM YYYY").toDate()},
+		$set: {montant: value.montant}
+	};
+	collection.update(filter, update, options);
+}
+
+module.exports = MongoService;
+
+function MongoService(host, port, dbname){
+	this.server = new mongo.Server(host, port);
+	this.db = new mongo.Db(dbname, this.server, {safe:true});
+}
+
+MongoService.prototype.findByDateRange = function(collName, fieldName, from, to, callback){
+	var filter = {};
+	filter[fieldName] =	{
+			$gte: from.toDate(),
+        	$lte: to.toDate()
+    }		
+	findByFilter.call(this,collName, filter, callback);
+}
+
+MongoService.prototype.findAll = function(collName, callback){
+	findByFilter.call(this,collName, {}, callback);
+}
+
 MongoService.prototype.upsert = function(collName, value, callback){
 	this.db.open(function(err, db) {
 		if (err){
@@ -88,7 +105,6 @@ MongoService.prototype.upsert = function(collName, value, callback){
 						value.forEach(function(element) {
 							upsertSingleDocument(
 								element,
-								{upsert:true}, 
 								collection
 							)
 						});
@@ -96,7 +112,6 @@ MongoService.prototype.upsert = function(collName, value, callback){
 					}else{
 						upsertSingleDocument(
 							value,
-							{upsert:true}, 
 							collection
 						)
 					}
