@@ -27,6 +27,7 @@
     "morgan": "~1.7.0",
     "raml2html": "^3.0.1",
     "serve-favicon": "~2.3.0",
+    "utils-error-to-json": "^1.0.0",
     "winston": "^2.3.0",
     "xml2js": "^0.4.17"
   }
