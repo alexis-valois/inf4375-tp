@@ -1,0 +1,13 @@
+#%RAML 0.8
+title: Services des contrevenants
+baseUri: http://localhost:3000
+version: 1
+
+/contrevenants:
+  get:
+    description: Fournir la liste des contrevenants et mettre à jours la base de données des contrevenants.
+    responses:
+      200:
+        description: La liste des livres a été correctement persistée dans la BD.
+      500:
+          description: Une erreur interne s'est produite. L'erreur a été persistée dans les logs du serveur.

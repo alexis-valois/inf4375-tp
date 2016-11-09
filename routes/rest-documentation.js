@@ -27,7 +27,7 @@ router.get('/', function(req, res) {
   var onSuccess = function(html) {
     res.send(html);
   };
-  raml2html.render("routes/doc/rest-documentation.raml", config).then(onSuccess, onError);
+  raml2html.render("./routes/doc/rest-documentation.raml", config).then(onSuccess, onError);
 });
 
 module.exports = router;
