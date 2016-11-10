@@ -2,17 +2,14 @@ var logger = require('../logger');
 var express = require('express');
 var ErrToJSON = require( 'utils-error-to-json' );
 var router = express.Router();
-var ContrevenantsService = require('../services/contrevenants-service');
+var contrevenantsService = require('../services/contrevenants-service');
 var moment = require('moment');
 var mongoService = require("../services/mongo-service");
 var config = require('../config');
 
-var contrevenantsService = new ContrevenantsService();
-//var mongoService = new MongoService(config.mongo.host, config.mongo.port, config.mongo.dbname);
 var collName = 'contrevenants';
 
 var updateContrevenants = function(res) {
-	logger.info('updateContrevenants...');
 	contrevenantsService.updateContrevenantsDump(function(err, result){
 	    if (err){
 			logger.error(err);
@@ -46,7 +43,6 @@ var handleDateFiltering = function(res, from, to){
 }
 
 var dispatchFromParams = function(req, res){
-	logger.info('dispatchFromParams...');
 	if (Object.keys(req.query).length === 0){
 		updateContrevenants(res);
 	}else{

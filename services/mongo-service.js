@@ -1,22 +1,15 @@
 var logger = require('../logger');
-//var mongo = require("mongodb");
 var MongoClient = require('mongodb').MongoClient;
-//var Server = require('mongodb').Server;
 var moment = require('moment');
+var async = require('async');
 var db;
-
-//var server;
-//var db;
 
 moment.locale('fr');
 
 var findByFilter = function(collName, filter, callback){
-	logger.info('findByFilter...');
 	db.collection(collName, function (err, collection) {
-	//mongoClient.db(this.dbname)
 		if (err){
 			logger.error(err);
-			//db.close();
 			callback(err);
 		}else{
 			/*Provenance : https://github.com/jacquesberger/exemplesINF4375/blob/master/MongoDB/2-find-year.js*/
@@ -24,14 +17,12 @@ var findByFilter = function(collName, filter, callback){
 			cursor.toArray(function (err, elems) {
 				if (err){
 					logger.error(err);
-					//db.close();
 					callback(err);
 				}else{
 					var values = [];
 					elems.forEach(function(elem){
 						values.push(elem);
 					});
-		     		//db.close()
 		     		callback(null, values);
 				}				     	
 		    });					
@@ -63,13 +54,11 @@ var upsertSingleContrevenant = function(value, callback){
 		$set: {date_jugement: moment(value.date_jugement, "DD MMMM YYYY").toDate()},
 		$set: {montant: value.montant}
 	};
-	logger.info('before db.collection');
 	db.collection('contrevenants', function (err, collection) {
-	//mongoClient.db(this.dbname)
 		if (err){
 			logger.error(err);
-			//db.close();
 			callback(err);
+			return;
 		}else{
 			var updateStatus = collection.update(filter, update, options);
 			callback(null, updateStatus);
@@ -77,8 +66,6 @@ var upsertSingleContrevenant = function(value, callback){
 	});
 	
 }
-
-//module.exports = MongoService;
 
 /*source : http://wesleytsai.io/2015/08/02/mongodb-connection-pooling-in-nodejs/*/
 exports.connect = function(mongoUrl, callback){
@@ -92,9 +79,6 @@ exports.connect = function(mongoUrl, callback){
 	    	callback(null, database);
 	    }	    
   	});
-	//mongoClient = new MongoClient(new Server(host, port));
-	//this.server = new mongo.Server(host, port);
-	//this.db = new mongo.Db(dbname, this.server, {safe:true});
 }
 
 exports.findByDateRange = function(collName, fieldName, from, to, callback){
@@ -122,26 +106,25 @@ exports.getSortedInfractionsCount = function(sortOrder, callback){
 }
 
 exports.findAll = function(collName, callback){
-	logger.info('findAll...');
 	findByFilter(collName, {}, callback);
 }
 
-exports.upsertContrevenant = function(value, callback){
+exports.upsertContrevenants = function(value, callback){
 	if (Array.isArray(value)){
-		value.forEach(function(contrevenant) {
-			upsertSingleContrevenant(
-				contrevenant,
-				callback
-			)
-	});
+		async.eachSeries(value, upsertSingleContrevenant, function(err){
+			if (err){
+				logger.error(err);
+				callback(err);
+				return;
+			}else{
+				callback();
+			}
+		});
 	}else{
-		upsertSingleContrevenant(
-			value,
-			callback
-		)
+		var err = new Error("La valeur passée doit être une liste.");
+		logger.error(err);
+		callback(err);
 	}
-	//db.close();
-	//callback(null, value);					
 }
 
 

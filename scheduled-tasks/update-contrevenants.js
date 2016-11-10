@@ -1,12 +1,10 @@
 var logger = require('../logger');
 var CronJob = require('cron').CronJob;
-var ContrevenantsService = require('../services/contrevenants-service');
-
-var contrevenantsService = new ContrevenantsService();
+var contrevenantsService = require('../services/contrevenants-service');
 
 //var job = new CronJob('* * * * * *', function(){
 var job = new CronJob('00 00 0 * * 1-7', function(){
-	console.log('Job executed');
+	logger.info('update-contrevenants Job executed.');
 	contrevenantsService.updateContrevenantsDump(function(err,res){
 		if (err){
 			logger.error(err);

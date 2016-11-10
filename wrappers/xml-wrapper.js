@@ -17,22 +17,20 @@ var logger = require('../logger');
 var http = require("http");
 var xml = require('xml2js');
 
-module.exports = XmlWrapper;
-
-function XmlWrapper(){}
-
-XmlWrapper.prototype.getJsObjFromXml = function (xmlString, elementName, callback){
-  xml.parseString(xmlString, function (err, xmlObject) {
+exports.getJsObjFromXml = function (xmlString, elementName){
+  var jsObject;
+  xml.parseString(xmlString, function (err, parsedXml) {
     if (err){
       logger.error(err);
       callback(err);
     } else{
-      callback(null, xmlObject[elementName]);
+      jsObject = parsedXml;
     }
   });
+  return jsObject[elementName];
 }
 
-XmlWrapper.prototype.fetchXmlString = function (encoding, host, ressource, callback) {
+exports.fetchXmlString = function (encoding, host, ressource, callback) {
   var options = {
     host: host,
     path: ressource,
