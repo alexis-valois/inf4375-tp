@@ -1,4 +1,5 @@
 /*source : http://stackoverflow.com/questions/5869216/how-to-store-node-js-deployment-settings-configuration-files*/
+var util = require('util');
 var config = {};
 config.contrevenants = {};
 config.mongo = {};
@@ -9,4 +10,8 @@ config.contrevenants.ressource = '/dataset/a5c1f0b9-261f-4247-99d8-f28da5000688/
 config.mongo.dbname = 'inf4375';
 config.mongo.host = '127.0.0.1';
 config.mongo.port = 27017;
+config.mongo.url = util.format('mongodb://%s:%d/%s', config.mongo.host, config.mongo.port, config.mongo.dbname);
+//config.mongo.url = 'mongodb://' + host + ':' + port + '/' + dbname;
+
+
 module.exports = config;

@@ -1,48 +1,45 @@
 var logger = require('../logger');
-var mongo = require("mongodb");
+//var mongo = require("mongodb");
+var MongoClient = require('mongodb').MongoClient;
+//var Server = require('mongodb').Server;
 var moment = require('moment');
-
-var server;
 var db;
+
+//var server;
+//var db;
 
 moment.locale('fr');
 
 var findByFilter = function(collName, filter, callback){
-	this.db.open(function(err,db){
-		if(err){
+	logger.info('findByFilter...');
+	db.collection(collName, function (err, collection) {
+	//mongoClient.db(this.dbname)
+		if (err){
 			logger.error(err);
+			//db.close();
 			callback(err);
 		}else{
-			db.collection(collName, function (err, collection) {
+			/*Provenance : https://github.com/jacquesberger/exemplesINF4375/blob/master/MongoDB/2-find-year.js*/
+			var cursor = collection.find(filter);
+			cursor.toArray(function (err, elems) {
 				if (err){
 					logger.error(err);
-					db.close();
+					//db.close();
 					callback(err);
 				}else{
-					/*Provenance : https://github.com/jacquesberger/exemplesINF4375/blob/master/MongoDB/2-find-year.js*/
-					var cursor = collection.find(filter);
-					cursor.toArray(function (err, elems) {
-						if (err){
-							logger.error(err);
-							db.close();
-							callback(err);
-						}else{
-							var values = [];
-							elems.forEach(function(elem){
-								values.push(elem);
-							});
-				     		db.close()
-				     		callback(null, values);
-						}				     	
-				    });					
-				}
-			});
-			
+					var values = [];
+					elems.forEach(function(elem){
+						values.push(elem);
+					});
+		     		//db.close()
+		     		callback(null, values);
+				}				     	
+		    });					
 		}
-	})
+	});
 }
 
-var upsertSingleDocument = function(value, collection){
+var upsertSingleContrevenant = function(value, callback){
 	var options = {upsert:true};
 	var filter = { 
 		proprietaire: value.proprietaire,
@@ -66,65 +63,85 @@ var upsertSingleDocument = function(value, collection){
 		$set: {date_jugement: moment(value.date_jugement, "DD MMMM YYYY").toDate()},
 		$set: {montant: value.montant}
 	};
-	collection.update(filter, update, options);
+	logger.info('before db.collection');
+	db.collection('contrevenants', function (err, collection) {
+	//mongoClient.db(this.dbname)
+		if (err){
+			logger.error(err);
+			//db.close();
+			callback(err);
+		}else{
+			var updateStatus = collection.update(filter, update, options);
+			callback(null, updateStatus);
+		}
+	});
+	
 }
 
-module.exports = MongoService;
+//module.exports = MongoService;
 
-function MongoService(host, port, dbname){
-	this.server = new mongo.Server(host, port);
-	this.db = new mongo.Db(dbname, this.server, {safe:true});
+/*source : http://wesleytsai.io/2015/08/02/mongodb-connection-pooling-in-nodejs/*/
+exports.connect = function(mongoUrl, callback){
+	if (db) callback(null, db);
+	MongoClient.connect(mongoUrl, function(err, database) {
+	    if(err) {
+	    	logger.error(err);
+	    	callback(err);
+	    }else{
+	    	db = database;
+	    	callback(null, database);
+	    }	    
+  	});
+	//mongoClient = new MongoClient(new Server(host, port));
+	//this.server = new mongo.Server(host, port);
+	//this.db = new mongo.Db(dbname, this.server, {safe:true});
 }
 
-MongoService.prototype.findByDateRange = function(collName, fieldName, from, to, callback){
+exports.findByDateRange = function(collName, fieldName, from, to, callback){
 	var filter = {};
 	filter[fieldName] =	{
 			$gte: from.toDate(),
         	$lte: to.toDate()
     }		
-	findByFilter.call(this,collName, filter, callback);
+	findByFilter(collName, filter, callback);
 }
 
-MongoService.prototype.getSortedInfractionsCount = function(collName, sortOrder, callback){
-	var filter = {};
-	findByFilter.call(this, collName, filter, callback);
+exports.getSortedInfractionsCount = function(sortOrder, callback){
+	db.contrevenants.aggregate(
+	   [
+	      {
+	        $group : {
+	           _id : { etablissement: { $month: "$date" } },
+	           totalPrice: { $sum: { $multiply: [ "$price", "$quantity" ] } },
+	           averageQuantity: { $avg: "$quantity" },
+	           count: { $sum: 1 }
+	        }
+	      }
+	   ]
+	)
 }
 
-MongoService.prototype.findAll = function(collName, callback){
-	findByFilter.call(this,collName, {}, callback);
+exports.findAll = function(collName, callback){
+	logger.info('findAll...');
+	findByFilter(collName, {}, callback);
 }
 
-MongoService.prototype.upsert = function(collName, value, callback){
-	this.db.open(function(err, db) {
-		if (err){
-			logger.error(err);
-			callback(err);
-		}else{
-			db.collection(collName, function (err, collection) {
-				if (err){
-					logger.error(err);
-					db.close();
-					callback(err);
-				}else{
-					if (Array.isArray(value)){
-						value.forEach(function(element) {
-							upsertSingleDocument(
-								element,
-								collection
-							)
-						});
-
-					}else{
-						upsertSingleDocument(
-							value,
-							collection
-						)
-					}
-					db.close();
-					callback(null, value);					
-				}
-			});
-		}	  	
+exports.upsertContrevenant = function(value, callback){
+	if (Array.isArray(value)){
+		value.forEach(function(contrevenant) {
+			upsertSingleContrevenant(
+				contrevenant,
+				callback
+			)
 	});
+	}else{
+		upsertSingleContrevenant(
+			value,
+			callback
+		)
+	}
+	//db.close();
+	//callback(null, value);					
 }
+
 

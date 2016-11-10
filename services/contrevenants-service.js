@@ -1,10 +1,10 @@
 var logger = require('../logger');
 var config = require('../config');
 var XmlWrapper = require("../wrappers/xml-wrapper");
-var MongoService = require("../services/mongo-service");
+var mongoService = require("../services/mongo-service");
 
 var xmlWrapper = new XmlWrapper();
-var mongoService = new MongoService(config.mongo.host, config.mongo.port, config.mongo.dbname);
+//var mongoService = new MongoService(config.mongo.host, config.mongo.port, config.mongo.dbname);
 var collName = 'contrevenants';
 
 var getContrevenantsXml = function(callback){
@@ -30,7 +30,8 @@ var getContrevenantListFromXmlString = function(xmlString, callback){
 }
 
 var saveContrevenants = function(contrevenantList, callback){
-	mongoService.upsert(collName,contrevenantList, function(err, result){
+	logger.info('before upsertContrevenant...');
+	mongoService.upsertContrevenant(contrevenantList, function(err, result){
     	if (err){
     		logger.error(err);
         	callback(err);
@@ -49,6 +50,7 @@ ContrevenantsService.prototype.filterByDateRange = function(from, to, callback){
 }
 
 ContrevenantsService.prototype.updateContrevenantsDump = function(callback){
+	logger.info('updateContrevenantsDump...');
 	getContrevenantsXml.call(this,function(err, xmlString) {
 		if (err){
 			logger.error(err);
@@ -64,6 +66,7 @@ ContrevenantsService.prototype.updateContrevenantsDump = function(callback){
 							logger.error(err);
 							callback(err);
 						}else{
+							logger.info('before mongoService.findAll...');
 							mongoService.findAll(collName, function(err, currentContrenvants){
 								if (err){
 									logger.error(err);
@@ -71,8 +74,7 @@ ContrevenantsService.prototype.updateContrevenantsDump = function(callback){
 								}else{
 									callback(null, currentContrenvants);
 								}
-							})
-							
+							})							
 						}
 					});
 				}
