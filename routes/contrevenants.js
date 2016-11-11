@@ -6,6 +6,7 @@ var contrevenantsService = require('../services/contrevenants-service');
 var moment = require('moment');
 var mongoService = require("../services/mongo-service");
 var config = require('../config');
+var csv = require("fast-csv");
 
 var collName = 'contrevenants';
 
@@ -65,7 +66,17 @@ var handleReprentationSpecificResponse = function(res, contentType, value){
 		res.render('grouped-etablissements-xml', {etablissements: value});
 	}else if (contentType == 'text/csv'){
 		res.header('Content-Type', 'text/csv');
-		//render in csv
+		var csvString;
+		csv.writeToString(value, {headers: true}, function(err, data){
+		        if (err){
+		        	logger.error(err);
+		        	res.status(500).json({error: ErrToJSON(err).message});
+		        }else{
+		        	csvString = data;
+		        	res.send(data);
+		        }
+		    }
+		);
 	}else{
 		res.json(value);
 	}
