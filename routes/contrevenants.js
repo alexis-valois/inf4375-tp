@@ -7,6 +7,8 @@ var moment = require('moment');
 var mongoService = require("../services/mongo-service");
 var config = require('../config');
 var csv = require("fast-csv");
+var validate = require('jsonschema').validate;
+var contrevenantSchema = require('../validations/contrevenant');
 
 var collName = 'contrevenants';
 
@@ -91,7 +93,7 @@ var sortedEtablissements = function(sortOrder, contentType, res){
 	} else{
 		var err = new Error('Le paramètre de trie doit être "asc" ou "desc".');
 		logger.error(err);
-		res.status(500).json({error: ErrToJSON(err).message});
+		res.status(400).json({error: ErrToJSON(err).message});
 		return;
 	}
 
@@ -107,5 +109,12 @@ var sortedEtablissements = function(sortOrder, contentType, res){
 }
 
 router.get('/', dispatchFromParams);
+
+router.put('/:id', function(req, res){
+
+	
+
+
+});
 
 module.exports = router;
