@@ -48,12 +48,29 @@ var dispatchFromParams = function(req, res){
 	}else{
 		var from = moment(req.query.du);
 		var to = moment(req.query.au);
-		handleDateFiltering(res, from, to);
+		var sort = req.query.tri;
+		if (sort){
+			sortedEtablissements(sort, res);
+		}else{
+			handleDateFiltering(res, from, to);
+		}		
 	}
 }
 
-var sortedEtablissements = function(req, res){
-	mongoService.getSortedInfractionsCount(-1, function(err, result){
+var sortedEtablissements = function(sortOrder, res){
+	var order;
+	if (sortOrder == 'asc'){
+		order = 1;
+	}else if (sortOrder == 'desc'){
+		order = -1;
+	} else{
+		var err = new Error('Le paramètre de trie doit être "asc" ou "desc".');
+		logger.error(err);
+		res.status(500).json({error: ErrToJSON(err).message});
+		return;
+	}
+
+	mongoService.getSortedInfractionsCount(order, function(err, result){
 		if (err){
 			logger.error(err);
 			res.status(500).json({error: ErrToJSON(err).message});
@@ -64,6 +81,5 @@ var sortedEtablissements = function(req, res){
 }
 
 router.get('/', dispatchFromParams);
-router.get('/sorted', sortedEtablissements);
 
 module.exports = router;
