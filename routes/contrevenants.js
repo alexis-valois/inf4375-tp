@@ -53,7 +53,7 @@ var dispatchFromParams = function(req, res){
 }
 
 var sortedEtablissements = function(req, res){
-	mongoService.getSortedInfractionsCount.call(this, collName, -1, function(err, result){
+	mongoService.getSortedInfractionsCount(-1, function(err, result){
 		if (err){
 			logger.error(err);
 			res.status(500).json({error: ErrToJSON(err).message});

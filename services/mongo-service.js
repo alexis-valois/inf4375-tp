@@ -13,8 +13,7 @@ var findByFilter = function(collName, filter, callback){
 			callback(err);
 		}else{
 			/*Provenance : https://github.com/jacquesberger/exemplesINF4375/blob/master/MongoDB/2-find-year.js*/
-			var cursor = collection.find(filter);
-			cursor.toArray(function (err, elems) {
+			collection.find(filter).toArray(function (err, elems) {
 				if (err){
 					logger.error(err);
 					callback(err);
@@ -91,18 +90,34 @@ exports.findByDateRange = function(collName, fieldName, from, to, callback){
 }
 
 exports.getSortedInfractionsCount = function(sortOrder, callback){
-	db.contrevenants.aggregate(
-	   [
-	      {
-	        $group : {
-	           _id : { etablissement: { $month: "$date" } },
-	           totalPrice: { $sum: { $multiply: [ "$price", "$quantity" ] } },
-	           averageQuantity: { $avg: "$quantity" },
-	           count: { $sum: 1 }
-	        }
-	      }
-	   ]
-	)
+	db.collection('contrevenants', function(err, collection){
+		if (err){
+			logger.error(err);
+			callback(err);
+			return;
+		}else{
+			collection.aggregate([
+				{
+					$group : {_id : "$etablissement", nbInfractions : { $sum : 1 }}
+				},
+			    {
+					$sort : {nbInfractions : sortOrder}
+			    }
+			]
+			).toArray(function (err, elems) {
+				if (err){
+					logger.error(err);
+					callback(err);
+				}else{
+					var values = [];
+					elems.forEach(function(elem){
+						values.push(elem);
+					});
+			    	callback(null, values);
+				}				     	
+		    });
+		}
+	})	
 }
 
 exports.findAll = function(collName, callback){
