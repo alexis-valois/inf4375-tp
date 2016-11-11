@@ -1,0 +1,7 @@
+doctype xml
+etablissements
+  if etablissements.length
+  each e in etablissements
+    etablissement
+      _id #{e._id}
+      nbInfractions #{e.nbInfractions}

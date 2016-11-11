@@ -50,14 +50,28 @@ var dispatchFromParams = function(req, res){
 		var to = moment(req.query.au);
 		var sort = req.query.tri;
 		if (sort){
-			sortedEtablissements(sort, res);
+			sortedEtablissements(sort, req.headers['content-type'], res);
 		}else{
 			handleDateFiltering(res, from, to);
 		}		
 	}
 }
 
-var sortedEtablissements = function(sortOrder, res){
+var handleReprentationSpecificResponse = function(res, contentType, value){
+	res.status(200);
+	res.header('Charset', 'UTF-8');
+	if (contentType == 'text/xml'){
+		res.header('Content-Type', 'application/xml');
+		res.render('grouped-etablissements-xml', {etablissements: value});
+	}else if (contentType == 'text/csv'){
+		res.header('Content-Type', 'text/csv');
+		//render in csv
+	}else{
+		res.json(value);
+	}
+}
+
+var sortedEtablissements = function(sortOrder, contentType, res){
 	var order;
 	if (sortOrder == 'asc'){
 		order = 1;
@@ -75,7 +89,8 @@ var sortedEtablissements = function(sortOrder, res){
 			logger.error(err);
 			res.status(500).json({error: ErrToJSON(err).message});
 		}else{
-			res.status(200).json(result);
+			handleReprentationSpecificResponse(res, contentType, result);
+			//res.status(200).json(result);
 		}
 	});
 }
