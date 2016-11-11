@@ -8,18 +8,27 @@ block content
   form
     label(for='debut') Date de début
     br
-    input(name='debut' type='date')
+    input#debut(type='date')
     br
     label(for='debut') Date de fin
     br
-    input(name='fin' type='date')
+    input#fin(type='date')
     br
-    button(onclick="replaceTableContent('contrevenants', 'etablissementsInfractions')") Rechercher
+  #buttons
+    button(onclick="replaceTableContent('contrevenants', 'debut', 'fin', 'etablissementsInfractions')") Rechercher
+ 
   table(border)
     thead
       tr
-        th(width="15%") Établissement
-        th.number(width="15%") Nombre d'infractions
+        th(width="10%") Propriétaire
+        th(width="10%") Établissement
+        th(width="10%") Adresse
+        th(width="10%") Ville
+        th(width="10%") Description
+        th(width="10%") Date de l'infraction
+        th(width="10%") Date du jugement
+        th.number(width="10%") Montant
+
     tbody#etablissementsInfractions
       tr
-        td.nodata(colspan="3") Aucune donnée
+        td.nodata(colspan="8") Aucune donnée
