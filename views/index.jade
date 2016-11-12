@@ -2,7 +2,6 @@ extends layout
 
 block content
   link(rel='stylesheet', href='/stylesheets/style.css')
-  script(src='/javascripts/ajax.js')
   h1= title
   h2 Veuillez saisir les dates pour la recherche
   form
@@ -15,7 +14,7 @@ block content
     input#fin(type='date')
     br
   #buttons
-    button(onclick="replaceTableContent('contrevenants', 'debut', 'fin', 'etablissementsInfractions')") Rechercher
+    button#search Rechercher
  
   table(border)
     thead
@@ -32,3 +31,4 @@ block content
     tbody#etablissementsInfractions
       tr
         td.nodata(colspan="8") Aucune donnée
+    script(src='/javascripts/ajax.js')
