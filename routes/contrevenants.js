@@ -110,54 +110,68 @@ var sortedEtablissements = function(sortOrder, contentType, res){
 
 router.get('/', dispatchFromParams);
 
-/*source : https://github.com/jacquesberger/exemplesINF4375/blob/master/Ateliers/json-schema/Solutions/routes/index.js*/
-router.put('/:id', function(req, res){
+
+var validateContrevenantId = function(req, res, next){
+	/*source : https://github.com/jacquesberger/exemplesINF4375/blob/master/Ateliers/json-schema/Solutions/routes/index.js*/
 	var id = req.params.id;
+
 	/*source : http://stackoverflow.com/questions/24607715/how-do-i-catch-error-when-creating-a-objectid*/
 	if( !(/[a-f0-9]{24}/.test(req.params.id) ) ){
 	    var invalidId = new Error("L'id spécifié n'est pas valide.");
 		logger.error(invalidId);
 		res.status(400).json({error: ErrToJSON(invalidId).message});
 	}else{
-		/*Source : http://stackoverflow.com/questions/4994201/is-object-empty*/
-		if (! (Object.getOwnPropertyNames(req.body).length > 0)){
-			var emptyBody = new Error("Le corps de la requête ne doit pas être vide.");
-			logger.error(emptyBody);
-			res.status(400).json({error: ErrToJSON(emptyBody).message});
-		}else{
-			mongoService.findById(collName, id, function(err, result){
-				if (err){
-					logger.error(err);
-					res.status(500).json({error: ErrToJSON(err).message});
-				}else if (result.length == 0){
-					var notFound = new Error("L'id spécifié ne correspond à aucun contrevenant enregistré.");
-					logger.error(notFound);
-					res.status(400).json({error: ErrToJSON(notFound).message});
-				}else{
-					var validation = validate(req.body, contrevenantSchema.update);
-					if (validation.errors.length > 0) {
-						res.status(400).json(validation.errors);
-					} else {
-						mongoService.updateContrevenant(id, req.body, function(err, result){
-							if (err){
-								logger.error(err);
-								res.status(500).json(err);
-							}else{
-								mongoService.findById(collName, id, function(err, result){
-									if (err){
-										logger.error(err);
-										res.status(500).json(err);
-									}else{
-										res.json(result);
-									}
-								});								
-							}
-						});						
-					}				
-				}
-			});
-		}
+		next();
 	}
-});
+}
+
+var validateContrevenantBody = function(req, res, next){
+	/*Source : http://stackoverflow.com/questions/4994201/is-object-empty*/
+	if (! (Object.getOwnPropertyNames(req.body).length > 0)){
+		var emptyBody = new Error("Le corps de la requête ne doit pas être vide.");
+		logger.error(emptyBody);
+		res.status(400).json({error: ErrToJSON(emptyBody).message});
+	}else{
+		next();
+	}
+}
+
+var validateIdExists = function(req, res, next){
+	mongoService.findById(collName, req.params.id, function(err, result){
+		if (err){
+			logger.error(err);
+			res.status(500).json({error: ErrToJSON(err).message});
+		}else if (result.length == 0){
+			var notFound = new Error("L'id spécifié ne correspond à aucun contrevenant enregistré.");
+			logger.error(notFound);
+			res.status(400).json({error: ErrToJSON(notFound).message});
+		}else{
+			next();
+		}
+	});
+}
+
+var validateContrevenantBody = function(req, res, next){
+	var validation = validate(req.body, contrevenantSchema.update);
+	if (validation.errors.length > 0) {
+		res.status(400).json(validation.errors);
+	} else {
+		next();
+	}
+}
+
+var updateContrevenant = function(req, res){
+	mongoService.updateContrevenant(req.params.id, req.body, function(err, result){
+		if (err){
+			logger.error(err);
+			res.status(500).json(err);
+		}else{
+			res.json(req.body);							
+		}
+	});
+}
+/*source : http://expressjs.com/fr/guide/routing.html*/
+router.put('/:id', [validateContrevenantId, validateContrevenantBody, validateIdExists, validateContrevenantBody, updateContrevenant]);
+
 
 module.exports = router;
