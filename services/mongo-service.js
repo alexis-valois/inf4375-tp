@@ -1,9 +1,10 @@
 var logger = require('../logger');
-var MongoClient = require('mongodb').MongoClient;
+var mongo = require('mongodb');
 var moment = require('moment');
 var async = require('async');
 var db;
 
+var MongoClient = mongo.MongoClient;
 moment.locale('fr');
 
 var findByFilter = function(collName, filter, callback){
@@ -80,6 +81,32 @@ exports.connect = function(mongoUrl, callback){
   	});
 }
 
+exports.updateContrevenant = function(id, value, callback){
+	var filter =  {_id: mongo.ObjectId(id)};
+	var update = {
+		$set: {proprietaire: value.proprietaire},
+		$set: {categorie: value.categorie},
+		$set: {etablissement : value.etablissement},
+		$set: {adresse: value.adresse},
+		$set: {ville: value.ville},
+		$set: {description: value.description},
+		$set: {date_infraction: moment(value.date_infraction, "DD MMMM YYYY").toDate()},
+		$set: {date_jugement: moment(value.date_jugement, "DD MMMM YYYY").toDate()},
+		$set: {montant: value.montant}
+	};
+	db.collection('contrevenants', function (err, collection) {
+		if (err){
+			logger.error(err);
+			callback(err);
+			return;
+		}else{
+			var updateStatus = collection.update(filter, update);
+			callback(null, updateStatus);
+		}
+	});
+
+}
+
 exports.findByDateRange = function(collName, fieldName, from, to, callback){
 	var filter = {};
 	filter[fieldName] =	{
@@ -118,6 +145,10 @@ exports.getSortedInfractionsCount = function(sortOrder, callback){
 		    });
 		}
 	})	
+}
+
+exports.findById = function(collName, id, callback){
+	findByFilter(collName, {_id: mongo.ObjectId(id)}, callback);
 }
 
 exports.findAll = function(collName, callback){
