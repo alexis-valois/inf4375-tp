@@ -144,7 +144,7 @@ var validateIdExists = function(req, res, next){
 		}else if (result.length == 0){
 			var notFound = new Error("L'id spécifié ne correspond à aucun contrevenant enregistré.");
 			logger.error(notFound);
-			res.status(400).json({error: ErrToJSON(notFound).message});
+			res.status(404).json({error: ErrToJSON(notFound).message});
 		}else{
 			next();
 		}
@@ -173,5 +173,23 @@ var updateContrevenant = function(req, res){
 /*source : http://expressjs.com/fr/guide/routing.html*/
 router.put('/:id', [validateContrevenantId, validateContrevenantBody, validateIdExists, validateContrevenantBody, updateContrevenant]);
 
+var deleteContrevenant = function(req, res){
+	mongoService.delete(collName, req.params.id, function(err, result){
+		if (err){
+			logger.error(err);
+			res.status(500).json(err);
+		}else{
+			res.json(
+				{
+					type : collName,
+					id: req.params.id,
+					status : "deleted",
+				}
+			);
+		}
+	});
+}
+
+router.delete('/:id', [validateContrevenantId, validateIdExists, deleteContrevenant]);
 
 module.exports = router;

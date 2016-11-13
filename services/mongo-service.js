@@ -155,6 +155,18 @@ exports.findAll = function(collName, callback){
 	findByFilter(collName, {}, callback);
 }
 
+exports.delete = function(collName, id, callback){
+	db.collection(collName, function(err, collection){
+		if (err){
+			logger.error(err);
+			callback(err);
+		}else{
+			var status = collection.remove({_id: mongo.ObjectId(id)})
+			callback(null, status);
+		}
+	});
+}
+
 exports.upsertContrevenants = function(value, callback){
 	if (Array.isArray(value)){
 		async.eachSeries(value, upsertSingleContrevenant, function(err){
