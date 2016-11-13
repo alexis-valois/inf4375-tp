@@ -10,79 +10,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+var fs = require("fs");
 
 module.exports = {
-  update: {
-    type: "object",
-    required: true,
-    additionalProperties: false,
-    properties: {
-      adresse: {
-        type: "array",
-        required: false,
-        items: {
-          type: "string",
-          required: true
-        }
-      },
-      categorie: {
-        type: "array",
-        required: false,
-        items: {
-          type: "string",
-          required: true
-        }
-      },
-      date_infraction: {
-        type: "string",
-        format: "date-time",
-        required: false
-      },
-      date_jugement: {
-        type: "string",
-        format: "date-time",
-        required: false
-      },
-      description: {
-        type: "array",
-        required: false,
-        items: {
-          type: "string",
-          required: true
-        }
-      },
-      etablissement: {
-        type: "array",
-        required: false,
-        items: {
-          type: "string",
-          required: true
-        }
-      },
-      montant: {
-        type: "array",
-        required: false,
-        items: {
-          type: "number",
-          required: true
-        }
-      },
-      proprietaire: {
-        type: "array",
-        required: false,
-        items: {
-          type: "string",
-          required: true
-        }
-      },
-      ville: {
-        type: "array",
-        required: false,
-        items: {
-          type: "string",
-          required: true
-        }
-      }
-    }
-  }
+  update: JSON.parse(fs.readFileSync("validations/update-contrevenant.json", 'utf8'))
 }

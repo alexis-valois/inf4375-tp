@@ -3,7 +3,70 @@ title: Services des contrevenants
 baseUri: http://localhost:3000
 version: 1
 
+/infractions:
+  get:
+    description: Fournir la liste des établissements ainsi que le nombre d'infractions leur étant liée, triée par nombre d'infractions.
+    queryParameters:
+      tri:
+        description: Spécifie l'ordre de trie
+        type: string
+        required: true
+        enum: ["asc", "desc"]
+        example : "asc"
+    responses:
+      200:
+        description: La liste des établissements et leur compte d'infractions, triée.
+        body:
+          application/json:
+            example: |
+              [
+                {
+                  "_id": [
+                    "SUPER MARCHE TROPIC"
+                  ],
+                  "nbInfractions": 9
+                },
+                {
+                  "_id": [
+                    "RESTAURANT ETHAN"
+                  ],
+                  "nbInfractions": 8
+                }
+              ]
+
 /contrevenants:
+  /{id}:
+    put:
+      description: Modifier un contrevenant selon son identifiant.
+      body:
+        application/json:
+          schema: !include ../../validations/update-contrevenant.json
+      responses:
+        200:
+          description: Le contrevenant a été modifié.
+        404:
+          description: L'identifiant spécifié n'existe pas.
+        500:
+          description: Une erreur interne s'est produite. L'erreur a été persistée dans les logs du serveur.
+
+    delete:
+      description: Supprimer un contrevenant selon son identifiant.
+      body:
+        application/json:
+          example: |
+            {
+              "type": "contrevenants",
+              "id": "582503aa74ce2c1363e290ef",
+              "status": "deleted"
+            }
+      responses:
+        200:
+          description: Le contrevenant a été supprimé.
+        404:
+          description: L'identifiant spécifié n'existe pas.
+        500:
+          description: Une erreur interne s'est produite. L'erreur a été persistée dans les logs du serveur.
+
   get:
     description: Fournir la liste des contrevenants depuis le service de la ville de Montréal.
     queryParameters:
