@@ -5,9 +5,65 @@ version: 1
 
 /contrevenants:
   get:
-    description: Fournir la liste des contrevenants et mettre à jours la base de données des contrevenants.
+    description: Fournir la liste des contrevenants depuis le service de la ville de Montréal.
+    queryParameters:
+        du:
+          description: Spécifie la date (ISO 8601) minimale pour filtrer les infractions des contrevenants
+          type: date
+          required: false
+          example: "2016-01-21"
+        au:
+          description: Spécifie la date (ISO 8601) maximale pour filtrer les infractions des contrevenants
+          type: date
+          required: false
+          example: "2016-01-30"
     responses:
       200:
-        description: La liste des livres a été correctement persistée dans la BD.
+        description: La liste des contrevenants demandés.
+        body:
+            application/json:
+                example: |
+                    [
+                      {
+                        "_id": "582870844b981ef012082e6f",
+                        "adresse": [
+                          "9880 Boul. Saint-Laurent "
+                        ],
+                        "categorie": [
+                          "Restaurant"
+                        ],
+                        "date_infraction": "2016-01-21T05:00:00.000Z",
+                        "date_jugement": "2016-09-30T04:00:00.000Z",
+                        "description": [
+                          "Le produit altérable à la chaleur à l'exception des fruits et légumes frais entiers doit être refroidi sans retard et maintenu constamment à une température interne et ambiante ne dépassant pas 4ºC jusqu'à sa livraison au consommateur, sauf pendant le temps requis pour l'application d'un procédé de fabrication ou d'un traitement reconnu en industrie alimentaire et qui exige une plus haute température."
+                        ],
+                        "etablissement": [
+                          "RESTAURANT MARABOU CREOLE"
+                        ],
+                        "montant": [
+                          "1350 $"
+                        ],
+                        "proprietaire": [
+                          "RESTAURANT MARABOU CREOLE INC."
+                        ],
+                        "ville": [
+                          "Montréal H3L 2N3"
+                        ]
+                      }
+                    ]
+            application/xml:
+                example: |
+                    <contrevenants>
+                        <contrevenant>
+                            <proprietaire>Liste des propriétaire</proprietaire>
+                            <etablissement>SILVER DRAGON II</etablissement>
+                            <adresse>1800 Av. de l' Église</adresse>
+                            <ville>Montréal H4E 1G8</ville>
+                            <description>Les lieux, véhicules, équipements, matériaux et ustensiles servant à la préparation au conditionnement, à l'entreposage, au transport, à l'étiquetage et au service des produits, ainsi que les autres installations et locaux sanitaires, doivent être propres.</description>
+                            <date_infraction>Wed Jul 29 2015 00:00:00 GMT-0400 (Est (heure d’été))</date_infraction>
+                            <date_jugement>Wed Sep 28 2016 00:00:00 GMT-0400 (Est (heure d’été))</date_jugement>
+                            <montant>2300 $</montant>
+                        </contrevenant>
+                    <contrevenants>
       500:
           description: Une erreur interne s'est produite. L'erreur a été persistée dans les logs du serveur.

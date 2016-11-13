@@ -103,7 +103,6 @@ var sortedEtablissements = function(sortOrder, contentType, res){
 			res.status(500).json({error: ErrToJSON(err).message});
 		}else{
 			handleReprentationSpecificResponse(res, contentType, result);
-			//res.status(200).json(result);
 		}
 	});
 }
