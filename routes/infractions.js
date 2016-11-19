@@ -5,28 +5,34 @@ var router = express.Router();
 var mongoService = require("../services/mongo-service");
 var csv = require("fast-csv");
 
+var error500message = "Une erreur est survenue côté serveur. Veuillez réessayer plustard.";
+
 var handleReprentationSpecificResponse = function(res, contentType, value){
-	res.status(200);
-	res.header('Charset', 'UTF-8');
-	if (contentType == 'application/xml'){
-		res.header('Content-Type', 'application/xml');
-		res.render('grouped-etablissements-xml', {etablissements: value});
-	}else if (contentType == 'text/csv'){
-		res.header('Content-Type', 'text/csv');
-		var csvString;
-		csv.writeToString(value, {headers: true}, function(err, data){
-		        if (err){
-		        	logger.error(err);
-		        	res.status(500).json({error: ErrToJSON(err).message});
-		        }else{
-		        	csvString = data;
-		        	res.send(data);
-		        }
-		    }
-		);
+	if (value.length == 0){
+		res.status(404).json({error : "Aucune infraction trouvé."});
 	}else{
-		res.json(value);
-	}
+		res.status(200);
+		res.header('Charset', 'UTF-8');
+		if (contentType == 'application/xml'){
+			res.header('Content-Type', 'application/xml');
+			res.render('grouped-etablissements-xml', {etablissements: value});
+		}else if (contentType == 'text/csv'){
+			res.header('Content-Type', 'text/csv');
+			var csvString;
+			csv.writeToString(value, {headers: true}, function(err, data){
+			        if (err){
+			        	logger.error(err);
+			        	res.status(500).json({error : error500message});
+			        }else{
+			        	csvString = data;
+			        	res.send(data);
+			        }
+			    }
+			);
+		}else{
+			res.json(value);
+		}
+	}	
 }
 
 var sortedEtablissements = function(req, res, next){
@@ -40,7 +46,7 @@ var sortedEtablissements = function(req, res, next){
 	mongoService.getSortedInfractionsCount(order, function(err, result){
 		if (err){
 			logger.error(err);
-			res.status(500).json({error: ErrToJSON(err).message});
+			res.status(500).json({error : error500message});
 		}else{
 			handleReprentationSpecificResponse(res, req.headers['content-type'], result);
 		}

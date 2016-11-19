@@ -11,7 +11,5 @@ config.mongo.dbname = 'inf4375';
 config.mongo.host = '127.0.0.1';
 config.mongo.port = 27017;
 config.mongo.url = util.format('mongodb://%s:%d/%s', config.mongo.host, config.mongo.port, config.mongo.dbname);
-//config.mongo.url = 'mongodb://' + host + ':' + port + '/' + dbname;
-
 
 module.exports = config;

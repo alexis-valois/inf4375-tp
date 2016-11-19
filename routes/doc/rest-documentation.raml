@@ -5,7 +5,7 @@ version: 1
 
 /infractions:
   get:
-    description: Fournir la liste des établissements ainsi que le nombre d'infractions leur étant liée, triée par nombre d'infractions.
+    description: Fournir la liste des établissements ainsi que le nombre d'infractions leur étant liée, trié par nombre d'infractions.
     queryParameters:
       tri:
         description: Spécifie l'ordre de trie
@@ -14,6 +14,14 @@ version: 1
         enum: ["asc", "desc"]
         example : "asc"
     responses:
+      500:
+        description: Une erreur côté serveur est survenue. Aucune action possible de la part de l'appelant.
+      404:
+        description: Aucun établissement n'a été trouvé.
+
+      400:
+        description: Le paramètre de tri n'est pas présent dans l'url
+       
       200:
         description: La liste des établissements et leur compte d'infractions, triée.
         body:
@@ -118,7 +126,7 @@ version: 1
                 example: |
                     <contrevenants>
                         <contrevenant>
-                            <proprietaire>Liste des propriétaire</proprietaire>
+                            <proprietaire>Liste des propriétaires</proprietaire>
                             <etablissement>SILVER DRAGON II</etablissement>
                             <adresse>1800 Av. de l' Église</adresse>
                             <ville>Montréal H4E 1G8</ville>
@@ -129,4 +137,8 @@ version: 1
                         </contrevenant>
                     <contrevenants>
       500:
-          description: Une erreur interne s'est produite. L'erreur a été persistée dans les logs du serveur.
+        description: Une erreur côté serveur est survenue. Aucune action possible de la part de l'appelant.
+
+      404:
+        description: Aucun contrevenant n'a été trouvé.
+

@@ -2,9 +2,22 @@ var logger = require('../logger');
 var mongo = require('mongodb');
 var moment = require('moment');
 var async = require('async');
+var config = require('../config');
 var db;
 
 var MongoClient = mongo.MongoClient;
+
+if (!db){
+	MongoClient.connect(config.mongo.url, function(err, database) {
+	    if(err) {
+	    	logger.error(err);
+	    	process.exit(1);
+	    }else{
+	    	db = database;
+	    }	    
+	});
+}
+
 moment.locale('fr');
 
 var findByFilter = function(collName, filter, callback){
@@ -65,20 +78,6 @@ var upsertSingleContrevenant = function(value, callback){
 		}
 	});
 	
-}
-
-/*source : http://wesleytsai.io/2015/08/02/mongodb-connection-pooling-in-nodejs/*/
-exports.connect = function(mongoUrl, callback){
-	if (db) callback(null, db);
-	MongoClient.connect(mongoUrl, function(err, database) {
-	    if(err) {
-	    	logger.error(err);
-	    	callback(err);
-	    }else{
-	    	db = database;
-	    	callback(null, database);
-	    }	    
-  	});
 }
 
 exports.updateContrevenant = function(id, value, callback){

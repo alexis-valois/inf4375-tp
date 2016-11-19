@@ -10,15 +10,20 @@ var validate = require('jsonschema').validate;
 var contrevenantSchema = require('../validations/contrevenant');
 
 var collName = 'contrevenants';
+var error500message = "Une erreur est survenue côté serveur. Veuillez réessayer plustard.";
 
-var updateContrevenants = function(res) {
-	contrevenantsService.updateContrevenantsDump(function(err, result){
+var findAllContrevenants = function(res) {
+	mongoService.findAll(collName, function(err, result){
 	    if (err){
 			logger.error(err);
-		    res.status(500).json({error : ErrToJSON(err).message});
+		    res.status(500).json({error : error500message});
 		}else{
-		    res.header('Content-Type', 'application/xml');
-		    res.render('contrevenants-xml', {contrevenants: result});
+			if (result.length == 0){
+				res.status(404).json({error : "Aucun contrevenant."});
+			}else{
+				res.header('Content-Type', 'application/xml');
+		    	res.render('contrevenants-xml', {contrevenants: result});
+			}		    
 		}
 	});
 }
@@ -29,9 +34,13 @@ var handleDateFiltering = function(req, res){
 	contrevenantsService.filterByDateRange(from, to, function(err,result){
 		if (err){
 			logger.error(err);
-			res.status(500).json({error: ErrToJSON(err).message});
+			res.status(500).json({error : error500message});
 		}else{
-			res.status(200).json(result);
+			if (result.length == 0){
+				res.status(404).json({error : "Aucun contrevenant trouvé."});
+			}else{
+				res.status(200).json(result);
+			}
 		}
 	});
 }
@@ -65,7 +74,7 @@ var validateDates = function(req, res, next){
 
 var dispatchFromParams = function(req, res, next){
 	if (Object.keys(req.query).length === 0){
-		updateContrevenants(res);
+		findAllContrevenants(res);
 	}else{
 		next();
 	}
@@ -102,7 +111,7 @@ var validateIdExists = function(req, res, next){
 	mongoService.findById(collName, req.params.id, function(err, result){
 		if (err){
 			logger.error(err);
-			res.status(500).json({error: ErrToJSON(err).message});
+			res.status(500).json({error : error500message});
 		}else if (result.length == 0){
 			var notFound = new Error("L'id spécifié ne correspond à aucun contrevenant enregistré.");
 			logger.error(notFound);
@@ -126,7 +135,7 @@ var updateContrevenant = function(req, res){
 	mongoService.updateContrevenant(req.params.id, req.body, function(err, result){
 		if (err){
 			logger.error(err);
-			res.status(500).json(err);
+			res.status(500).json({error : error500message});
 		}else{
 			res.json(req.body);							
 		}
@@ -139,7 +148,7 @@ var deleteContrevenant = function(req, res){
 	mongoService.delete(collName, req.params.id, function(err, result){
 		if (err){
 			logger.error(err);
-			res.status(500).json(err);
+			res.status(500).json({error : error500message});
 		}else{
 			res.json(
 				{
