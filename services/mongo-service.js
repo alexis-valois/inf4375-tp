@@ -82,24 +82,13 @@ var upsertSingleContrevenant = function(value, callback){
 
 exports.updateContrevenant = function(id, value, callback){
 	var filter =  {_id: mongo.ObjectId(id)};
-	var update = {
-		$set: {proprietaire: value.proprietaire},
-		$set: {categorie: value.categorie},
-		$set: {etablissement : value.etablissement},
-		$set: {adresse: value.adresse},
-		$set: {ville: value.ville},
-		$set: {description: value.description},
-		$set: {date_infraction: moment(value.date_infraction, "DD MMMM YYYY").toDate()},
-		$set: {date_jugement: moment(value.date_jugement, "DD MMMM YYYY").toDate()},
-		$set: {montant: value.montant}
-	};
 	db.collection('contrevenants', function (err, collection) {
 		if (err){
 			logger.error(err);
 			callback(err);
 			return;
 		}else{
-			var updateStatus = collection.update(filter, update);
+			var updateStatus = collection.update(filter, value);
 			callback(null, updateStatus);
 		}
 	});
